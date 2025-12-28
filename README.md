@@ -419,6 +419,88 @@ your_project/
 - `keyring>=24.0` - Windows Credential Manager integration
 - `packaging>=21.0` - Version comparison
 
+## Development
+
+### Running Tests
+
+```bash
+# Full test suite with coverage
+pytest --cov=harness --cov-report=term-missing
+
+# Just validator tests (fastest feedback)
+pytest tests/test_validators/ -v
+
+# Specific module
+pytest tests/test_runner.py -v
+```
+
+### Claude Code Integration
+
+This project includes Claude Code configuration for AI-assisted development.
+
+#### Commands (`.claude/commands/`)
+
+| Command | Description |
+|---------|-------------|
+| `/test` | Run full test suite with coverage |
+| `/test-validators` | Run only validator tests |
+| `/test-quick` | Run tests excluding slow ones |
+| `/run-example` | Dry-run the example pipeline |
+| `/check-pipelines` | Validate all pipelines load correctly |
+
+#### Skills (`.claude/skills/`)
+
+| Skill | Description |
+|-------|-------------|
+| `/harness-context` | Re-establish project knowledge when context is lost |
+| `/new-pipeline` | Generate a new pipeline from template |
+| `/new-validator` | Generate a new validator with tests |
+| `/debug-run` | Analyze a failed pipeline run |
+
+### Creating Custom Validators
+
+Inherit from `Validator` and implement `check()`:
+
+```python
+from harness.validators.base import Validator
+from harness.models import ValidationResult
+
+class MyValidator(Validator):
+    name = "MyValidator"
+
+    def __init__(self, param: str, from_context: bool = False):
+        self.param = param
+        self.from_context = from_context
+
+    def check(self, context: dict) -> ValidationResult:
+        value = context.get(self.param) if self.from_context else self.param
+
+        if some_condition(value):
+            return ValidationResult.success(self.name, f"Check passed: {value}")
+
+        return ValidationResult.failure(self.name, f"Check failed: {value}")
+```
+
+Add to `harness/validators/__init__.py` exports to make it available.
+
+### Architecture Overview
+
+```
+PipelineRunner.run(pipeline)
+    │
+    ├── Acquire lock (PipelineLock)
+    │
+    ├── For each Task:
+    │   ├── Check preconditions (Validator.check())
+    │   ├── Execute task.run(context) with timeout
+    │   ├── Merge TaskResult.data into context
+    │   └── Check postconditions
+    │
+    ├── Record history (RunHistory)
+    │
+    └── Release lock
+```
+
 ## Contributing
 
 Contributions are welcome! Please read our contributing guidelines and submit pull requests.

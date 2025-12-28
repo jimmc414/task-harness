@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "task-harness"
+version = "0.1.0"
+description = "Task orchestration framework with validation-based error handling"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Jim McMahon"}
+]
+keywords = ["task", "orchestration", "automation", "pipeline", "validation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+]
+
+dependencies = [
+    "cryptography>=41.0",
+    "paramiko>=3.0",
+    "openpyxl>=3.1",
+    "pandas>=2.0",
+    "psutil>=5.9",
+    "colorama>=0.4",
+    "keyring>=24.0",
+    "packaging>=21.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "pytest-mock",
+    "freezegun",
+]
+
+[project.scripts]
+harness = "harness.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jimmc414/task-harness"
+Repository = "https://github.com/jimmc414/task-harness"
+Issues = "https://github.com/jimmc414/task-harness/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["harness*", "pipelines*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["harness"]
+branch = true
+omit = ["tests/*", "pipelines/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]

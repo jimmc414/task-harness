@@ -43,6 +43,8 @@ htmlcov/
 # Runtime files (created by harness)
 logs/
 locks/
+output/
+data/
 run_history.jsonl
 .harness/
 
